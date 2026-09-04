@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Shorts SEO Scraper",
+  "version": "2.0",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/@*/shorts*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injector.js"],
+      "matches": ["https://www.youtube.com/*"]
+    }
+  ]
+}
