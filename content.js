@@ -12,6 +12,21 @@ const rowsById = new Map(); // videoId -> { record, dateCell } for patching in t
 let lastScrollPos = 0;
 let samePosCount = 0;
 
+// "Node Mesh" mark: a network glyph, reused at launcher, panel-header, and toolbar-icon scale
+const NODE_MESH_SVG = `
+  <svg viewBox="0 0 100 100">
+    <line x1="50" y1="50" x2="50" y2="14" stroke="#00F0FF" stroke-width="9" stroke-linecap="square"/>
+    <line x1="50" y1="50" x2="86" y2="50" stroke="#00F0FF" stroke-width="9" stroke-linecap="square"/>
+    <line x1="50" y1="50" x2="50" y2="86" stroke="#00F0FF" stroke-width="9" stroke-linecap="square"/>
+    <line x1="50" y1="50" x2="14" y2="50" stroke="#00F0FF" stroke-width="9" stroke-linecap="square"/>
+    <rect x="41" y="5" width="18" height="18" fill="#00F0FF"/>
+    <rect x="77" y="41" width="18" height="18" fill="#00F0FF"/>
+    <rect x="41" y="77" width="18" height="18" fill="#00F0FF"/>
+    <rect x="5" y="41" width="18" height="18" fill="#00F0FF"/>
+    <path d="M50,35 L65,50 L50,65 L35,50 Z" fill="#FF0055"/>
+  </svg>
+`;
+
 // 2. Build Dashboard Overlay with Export Button (starts collapsed into a small launcher tab)
 function createUI() {
   if (document.getElementById('yt-seo-panel')) return;
@@ -20,7 +35,7 @@ function createUI() {
   launcher.id = 'yt-seo-launcher';
   launcher.type = 'button';
   launcher.title = 'Open SEO Shorts Scraper';
-  launcher.textContent = 'SEO';
+  launcher.innerHTML = NODE_MESH_SVG;
   document.body.appendChild(launcher);
 
   const panel = document.createElement('div');
@@ -28,7 +43,10 @@ function createUI() {
   panel.classList.add('hidden');
   panel.innerHTML = `
     <div class="panel-header">
-      <span class="panel-title"><strong>SEO Shorts Scraper</strong></span>
+      <span class="panel-brand">
+        <span class="panel-mark">${NODE_MESH_SVG}</span>
+        <span class="panel-title">SEO Shorts Scraper</span>
+      </span>
       <div class="panel-actions">
         <button id="yt-seo-export-btn" class="export-btn">Export TXT</button>
         <button id="yt-seo-toggle-btn" class="start-btn">Start Scraping</button>
@@ -106,7 +124,7 @@ function toggleScraping() {
 window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'YT_SEO_SCRAPED_DATA') {
     const tbody = document.getElementById('yt-seo-tbody');
-    
+
     event.data.data.forEach(item => {
       // Prevent duplicates
       if (item.id && processedIds.has(item.id)) return;
@@ -179,7 +197,7 @@ function exportToTxt() {
   const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
   const downloadUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  
+
   a.href = downloadUrl;
   a.download = `yt-shorts-${getChannelHandle()}.txt`;
   document.body.appendChild(a);
