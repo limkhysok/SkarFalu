@@ -17,22 +17,10 @@
     },
     "default_title": "SkarFalu"
   },
-  "permissions": ["activeTab"],
-  "content_scripts": [
-    {
-      "matches": ["https://www.youtube.com/@*/shorts*"],
-      "js": [
-        "src/core/messaging.js",
-        "src/utils/export.js",
-        "src/utils/channel.js",
-        "src/viewmodels/scraper.viewmodel.js",
-        "src/views/panel.view.js",
-        "src/content-entry.js"
-      ],
-      "css": ["src/views/panel.view.css"],
-      "run_at": "document_start"
-    }
-  ],
+  "permissions": ["activeTab", "scripting"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
   "web_accessible_resources": [
     {
       "resources": [

@@ -2,6 +2,8 @@
 // (in execution order) so they can read the page's own JS state, then wires
 // the ViewModel to the View.
 (() => {
+  window.__skarfaluInjected = true; // lets background.js detect an already-running instance
+
   const MAIN_WORLD_SCRIPTS = [
     'src/core/messaging.js',
     'src/utils/format.js',
