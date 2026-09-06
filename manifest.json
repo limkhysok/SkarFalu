@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Shorts SEO Scraper",
-  "version": "2.0",
+  "name": "SkarFalu",
+  "version": "2.1",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -15,20 +15,33 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "SEO Shorts Scraper"
+    "default_title": "SkarFalu"
   },
   "permissions": ["activeTab"],
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/@*/shorts*"],
-      "js": ["content.js"],
-      "css": ["styles.css"],
+      "js": [
+        "src/core/messaging.js",
+        "src/utils/export.js",
+        "src/utils/channel.js",
+        "src/viewmodels/scraper.viewmodel.js",
+        "src/views/panel.view.js",
+        "src/content-entry.js"
+      ],
+      "css": ["src/views/panel.view.css"],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["injector.js"],
+      "resources": [
+        "src/core/messaging.js",
+        "src/utils/format.js",
+        "src/models/platform-registry.js",
+        "src/models/youtube/youtube-shorts.model.js",
+        "src/injector-entry.js"
+      ],
       "matches": ["https://www.youtube.com/*"]
     }
   ]
