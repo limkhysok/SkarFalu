@@ -23,15 +23,18 @@
   function boot() {
     const view = new window.SEOScraper.PanelView();
     const viewModel = new window.SEOScraper.ScraperViewModel({
-      onRowAdded: (record, id) => view.renderRow(record, id),
+      onRowAdded: (record) => view.renderRow(record),
       onCountChanged: (count) => view.updateCount(count),
       onDateUpdated: (id, date) => view.updateDate(id, date),
-      onScrapingStateChanged: (isScrolling) => view.setScrapingState(isScrolling)
+      onScrapingStateChanged: (isScrolling) => view.setScrapingState(isScrolling),
+      onToast: (message) => view.showToast(message)
     });
     view.viewModel = viewModel;
 
-    viewModel.init();
+    // mount() first: init() may synchronously replay a restored scrape via
+    // onRowAdded, which needs the table already in the DOM.
     view.mount();
+    viewModel.init();
   }
 
   if (document.readyState === 'loading') {

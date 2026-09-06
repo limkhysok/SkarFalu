@@ -4,10 +4,7 @@ window.SEOScraper = window.SEOScraper || {};
 
 window.SEOScraper.Export = {
   toTxt(records, filename) {
-    if (!records || records.length === 0) {
-      alert('No scraped data available to export!');
-      return;
-    }
+    if (!records || records.length === 0) return;
 
     let txtContent = '| number | url_link | title | views_count | date |\n';
     txtContent += '--------------------------------------------------------------------------------\n';

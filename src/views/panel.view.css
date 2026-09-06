@@ -15,6 +15,25 @@
   --seo-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
+/* YouTube's own dark theme sets `dark` on <html>, independent of the OS setting */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --seo-bg: #1F1F1F;
+    --seo-surface-alt: #2B2B2B;
+    --seo-border: #4A4A4A;
+    --seo-text: #F4F0EA;
+    --seo-text-muted: #ADA89D;
+  }
+}
+
+html[dark] {
+  --seo-bg: #1F1F1F;
+  --seo-surface-alt: #2B2B2B;
+  --seo-border: #4A4A4A;
+  --seo-text: #F4F0EA;
+  --seo-text-muted: #ADA89D;
+}
+
 /* Small always-visible launcher tab; opens the full panel on click */
 #yt-seo-launcher {
   position: fixed;
@@ -22,12 +41,13 @@
   right: 20px;
   width: 48px;
   height: 48px;
-  border-radius: 0;
-  background: var(--seo-tile);
+  border-radius: 50%;
+  background: transparent;
   color: #fff;
   border: 3px solid var(--seo-border-light);
   z-index: 999999;
   cursor: pointer;
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,6 +66,24 @@
 
 #yt-seo-launcher:active {
   background: var(--seo-accent-alt);
+}
+
+#yt-seo-launcher.scraping::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--seo-accent-alt);
+  border: 2px solid var(--seo-border-light);
+  animation: skarfalu-pulse 1.4s ease-out infinite;
+}
+
+@keyframes skarfalu-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(255, 0, 85, 0); }
 }
 
 #yt-seo-panel {
@@ -76,6 +114,12 @@
   padding: 10px 14px;
   border-bottom: 3px solid var(--seo-border);
   background: var(--seo-surface-alt);
+  cursor: grab;
+  touch-action: none;
+}
+
+.panel-header:active {
+  cursor: grabbing;
 }
 
 .panel-brand {
@@ -88,7 +132,7 @@
 .panel-mark {
   width: 26px;
   height: 26px;
-  background: var(--seo-tile);
+  background: transparent;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -166,19 +210,45 @@ button {
   line-height: 1;
 }
 
+.panel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 2px solid var(--seo-border);
+}
+
 .panel-stats {
   font-size: 11.5px;
   margin: 0;
-  padding: 8px 14px;
   color: var(--seo-text-muted);
-  border-bottom: 2px solid var(--seo-border);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .panel-stats span {
   color: var(--seo-text);
   font-weight: 700;
+}
+
+.filter-input {
+  font-family: var(--seo-mono);
+  font-size: 11.5px;
+  min-width: 0;
+  flex: 1;
+  max-width: 220px;
+  padding: 5px 8px;
+  background: var(--seo-bg);
+  color: var(--seo-text);
+  border: 2px solid var(--seo-border);
+  border-radius: 0;
+}
+
+.filter-input:focus {
+  outline: 2px solid var(--seo-accent);
+  outline-offset: -2px;
 }
 
 .panel-table-wrapper {
@@ -210,6 +280,24 @@ button {
   font-weight: 700;
 }
 
+#yt-seo-table th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+}
+
+#yt-seo-table th[data-sort]:hover {
+  background: var(--seo-accent);
+  color: #000;
+}
+
+.sort-indicator {
+  color: var(--seo-accent);
+}
+
+#yt-seo-table th[data-sort]:hover .sort-indicator {
+  color: #000;
+}
+
 #yt-seo-table td {
   max-width: 260px;
   overflow: hidden;
@@ -221,3 +309,25 @@ button {
 
 #yt-seo-table a { color: #000; text-decoration: none; font-weight: 700; border-bottom: 2px solid var(--seo-accent); }
 #yt-seo-table a:hover { background: var(--seo-accent); }
+
+#yt-seo-toast {
+  position: fixed;
+  bottom: 78px;
+  right: 20px;
+  max-width: 320px;
+  background: var(--seo-tile);
+  color: #fff;
+  border: 2px solid var(--seo-border-light);
+  padding: 10px 14px;
+  font-family: var(--seo-mono);
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 1000000;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#yt-seo-toast.toast-hidden {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
