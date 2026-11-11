@@ -17,7 +17,16 @@
     },
     "default_title": "SkarFalu"
   },
-  "permissions": ["activeTab", "scripting"],
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.youtube.com/*",
+    "https://*.tiktok.com/*",
+    "https://*.instagram.com/*",
+    "https://*.facebook.com/*"
+  ],
   "background": {
     "service_worker": "src/background.js"
   },
@@ -27,10 +36,19 @@
         "src/core/messaging.js",
         "src/utils/format.js",
         "src/models/platform-registry.js",
+        "src/injector-entry.js",
         "src/models/youtube/youtube-shorts.model.js",
-        "src/injector-entry.js"
+        "icons/platforms/youtube/icon48.png",
+        "icons/platforms/tiktok/icon48.png",
+        "icons/platforms/instagram/icon48.png",
+        "icons/platforms/facebook/icon48.png"
       ],
-      "matches": ["https://www.youtube.com/*"]
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://www.tiktok.com/*",
+        "https://www.instagram.com/*",
+        "https://www.facebook.com/*"
+      ]
     }
   ]
 }

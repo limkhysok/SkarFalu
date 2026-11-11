@@ -1,14 +1,23 @@
 // TEMPLATE - not loaded by the extension. Copy this file into
 // src/models/<platform>/<platform>-<content-type>.model.js when adding a new
-// platform (e.g. facebook/facebook-reels.model.js, tiktok/tiktok-videos.model.js),
-// then wire it up in manifest.json (see the comments there) alongside
-// youtube/youtube-shorts.model.js.
+// platform (e.g. tiktok/tiktok-videos.model.js), then:
+//   1. make sure its entry in src/platforms/platforms.config.js points at it
+//      (`modelFile`) and uses the same `id` as the register() call below,
+//   2. add the file to manifest.json's web_accessible_resources,
+//   3. set `enabled: true` in platforms.config.js.
 //
-// A Model owns everything that's specific to one platform's page: reading its
-// initial data payload, intercepting its pagination/continuation requests,
-// and normalizing each item into { id, title, url, views, date }. It knows
-// nothing about the DOM panel or app state - it only ever calls sendData()
-// and window.postMessage, same as youtube-shorts.model.js.
+// A Model runs in the page's MAIN world and owns everything specific to one
+// platform's page: reading its initial data payload, intercepting its
+// pagination requests, and normalizing each item into
+// { id, title, url, views, date }. It knows nothing about the panel or app
+// state - it only ever posts messages, same as youtube-shorts.model.js.
+//
+// Notes:
+// - The panel is injected on toolbar click, i.e. usually AFTER the page has
+//   loaded: don't wait for window 'load' without checking
+//   document.readyState first.
+// - If an item's date (or any field) has to be fetched later, send
+//   'Loading...' and post MSG.DATE_UPDATE { id, date } when it resolves.
 (() => {
   const MSG = window.SEOScraper.MSG;
 
@@ -24,18 +33,14 @@
   }
 
   function start() {
-    // TODO: scrape the initial payload (e.g. window.__INITIAL_STATE__) and
-    // call sendData(parseItems(...)).
-    // TODO: intercept window.fetch/XHR for this platform's pagination
-    // endpoint and call sendData(...) for each new batch.
+    // TODO: scrape the initial payload already on the page (embedded JSON
+    // state / script tag) and call sendData(parseItems(...)).
+    // TODO: intercept window.fetch / XMLHttpRequest for this platform's
+    // pagination endpoint and call sendData(...) for each new batch.
   }
 
   window.SEOScraper.PlatformRegistry.register({
-    id: 'platform-content-type', // e.g. 'facebook-reels'
-    matches(location) {
-      // TODO: return true when this model should handle the current page
-      return false;
-    },
+    id: 'platform-content-type', // must match the id in platforms.config.js
     start
   });
 })();

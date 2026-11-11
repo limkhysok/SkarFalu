@@ -5,6 +5,6 @@
 window.SEOScraper = window.SEOScraper || {};
 
 window.SEOScraper.MSG = Object.freeze({
-  SCRAPED_DATA: 'YT_SEO_SCRAPED_DATA',
-  DATE_UPDATE: 'YT_SEO_DATE_UPDATE'
+  SCRAPED_DATA: 'SKARFALU_SCRAPED_DATA',
+  DATE_UPDATE: 'SKARFALU_DATE_UPDATE'
 });

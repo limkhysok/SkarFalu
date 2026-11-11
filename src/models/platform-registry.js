@@ -1,20 +1,19 @@
-// Runs in the MAIN world. Each supported platform/content-type (YouTube
-// Shorts, later YouTube Videos, Facebook Reels, Instagram Photos, etc.)
-// registers itself here; injector-entry.js just detects which one matches
-// the current page and starts it. See models/platform-model.template.js for
-// the contract new platforms must implement.
+// Runs in the MAIN world. Each platform Model file registers its start()
+// here under the same id it has in src/platforms/platforms.config.js;
+// injector-entry.js then starts the one content-entry.js selected. See
+// models/platform-model.template.js for the contract.
 window.SEOScraper = window.SEOScraper || {};
 
 window.SEOScraper.PlatformRegistry = (() => {
-  const platforms = [];
+  const platforms = new Map();
 
   function register(platform) {
-    platforms.push(platform);
+    platforms.set(platform.id, platform);
   }
 
-  function detect(location) {
-    return platforms.find(platform => platform.matches(location)) || null;
+  function get(id) {
+    return platforms.get(id) || null;
   }
 
-  return { register, detect };
+  return { register, get };
 })();

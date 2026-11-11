@@ -5,7 +5,8 @@
 window.SEOScraper = window.SEOScraper || {};
 
 window.SEOScraper.ScraperViewModel = class ScraperViewModel {
-  constructor({ onRowAdded, onCountChanged, onDateUpdated, onScrapingStateChanged, onToast } = {}) {
+  constructor({ platform, onRowAdded, onCountChanged, onDateUpdated, onScrapingStateChanged, onToast } = {}) {
+    this.platform = platform; // entry from platforms.config.js
     this.onRowAdded = onRowAdded;
     this.onCountChanged = onCountChanged;
     this.onDateUpdated = onDateUpdated;
@@ -27,7 +28,7 @@ window.SEOScraper.ScraperViewModel = class ScraperViewModel {
   // Also restores any in-progress scrape for this channel from a previous
   // load, in case the tab was reloaded or navigated away mid-scrape.
   init() {
-    this.storageKey = `skarfalu:scrape:${window.SEOScraper.Channel.getHandle()}`;
+    this.storageKey = `skarfalu:scrape:${this.platform.id}:${this._handle()}`;
     this._restore();
 
     window.addEventListener('message', (event) => {
@@ -38,6 +39,11 @@ window.SEOScraper.ScraperViewModel = class ScraperViewModel {
         this.handleDateUpdate(event.data.id, event.data.date);
       }
     });
+  }
+
+  // Channel/account handle for the current page, e.g. "@CrazyZoomXYZ".
+  _handle() {
+    return this.platform.getHandle(window.location.href);
   }
 
   _restore() {
@@ -118,7 +124,7 @@ window.SEOScraper.ScraperViewModel = class ScraperViewModel {
         if (currentScroll === this.lastScrollPos) {
           this.samePosCount++;
           if (this.samePosCount >= 3) {
-            console.log('⚡ [SEO Scraper] Reached end of page. Scraping complete!');
+            console.log('⚡ [SkarFalu] Reached end of page. Scraping complete!');
             this.toggleScraping();
           }
         } else {
@@ -139,7 +145,7 @@ window.SEOScraper.ScraperViewModel = class ScraperViewModel {
       return;
     }
 
-    const filename = `yt-shorts-${window.SEOScraper.Channel.getHandle()}.txt`;
+    const filename = `${this.platform.filePrefix}-${this._handle()}.txt`;
     window.SEOScraper.Export.toTxt(this.scrapedList, filename);
     this.onToast?.(`Exported ${filename}`);
   }

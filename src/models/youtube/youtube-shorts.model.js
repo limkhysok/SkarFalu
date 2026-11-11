@@ -107,23 +107,36 @@
     return extractedList;
   }
 
-  function start() {
-    // 1. Scrape Initial Page Payload (First 30 Videos)
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        try {
-          const initData = window.ytInitialData;
-          const tabs = initData?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
-          const shortsTab = tabs.find(tab => tab.tabRenderer?.selected);
-          const items = shortsTab?.tabRenderer?.content?.richGridRenderer?.contents || [];
+  function getSelectedTabItems(browseData) {
+    const tabs = browseData?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
+    const shortsTab = tabs.find(tab => tab.tabRenderer?.selected);
+    return shortsTab?.tabRenderer?.content?.richGridRenderer?.contents || [];
+  }
 
-          const initialVideos = parseItems(items);
-          sendData(initialVideos);
-        } catch (e) {
-          console.log('Error parsing initial data:', e);
-        }
-      }, 1500);
-    });
+  function scrapeInitialPayload() {
+    try {
+      // After in-app (SPA) navigation, window.ytInitialData still holds the
+      // FIRST page loaded in the tab, so prefer the live data on the visible
+      // <ytd-browse> element and fall back to ytInitialData.
+      const browseEl = document.querySelector('ytd-browse:not([hidden])');
+      let items = getSelectedTabItems(browseEl?.data);
+      if (items.length === 0) items = getSelectedTabItems(window.ytInitialData);
+
+      sendData(parseItems(items));
+    } catch (e) {
+      console.log('Error parsing initial data:', e);
+    }
+  }
+
+  function start() {
+    // 1. Scrape Initial Page Payload (First 30 Videos).
+    // The panel is injected on toolbar click, usually long after 'load' has
+    // fired, so only wait for it if the page is genuinely still loading.
+    if (document.readyState === 'complete') {
+      setTimeout(scrapeInitialPayload, 300);
+    } else {
+      window.addEventListener('load', () => setTimeout(scrapeInitialPayload, 1500), { once: true });
+    }
 
     // 2. Intercept Fetch API for Continuations (Videos 31 to End)
     const origFetch = window.fetch;
@@ -148,10 +161,7 @@
   }
 
   window.SEOScraper.PlatformRegistry.register({
-    id: 'youtube-shorts',
-    matches(location) {
-      return location.hostname === 'www.youtube.com' && /^\/@[^/]+\/shorts/.test(location.pathname);
-    },
+    id: 'youtube-shorts', // must match the id in platforms.config.js
     start
   });
 })();

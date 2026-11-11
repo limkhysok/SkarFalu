@@ -117,8 +117,11 @@ window.SEOScraper = window.SEOScraper || {};
   };
 
   window.SEOScraper.PanelView = class PanelView {
-    constructor(viewModel) {
-      this.viewModel = viewModel;
+    // viewModel is bound after construction (see content-entry.js).
+    constructor({ platformLabel = '', platformIconUrl = null } = {}) {
+      this.viewModel = null;
+      this.platformLabel = platformLabel;
+      this.platformIconUrl = platformIconUrl;
       this.rows = []; // { id, record, el }, in insertion order
       this.dateCellsById = new Map(); // videoId -> date <td>, for patching in the date once it resolves
       this.sortKey = null;
@@ -128,17 +131,17 @@ window.SEOScraper = window.SEOScraper || {};
     }
 
     mount() {
-      if (document.getElementById('yt-seo-panel')) return;
+      if (document.getElementById('skarfalu-panel')) return;
 
       const launcher = document.createElement('button');
-      launcher.id = 'yt-seo-launcher';
+      launcher.id = 'skarfalu-launcher';
       launcher.type = 'button';
       launcher.title = 'Open SkarFalu';
       launcher.innerHTML = NODE_MESH_SVG;
       document.body.appendChild(launcher);
 
       const panel = document.createElement('div');
-      panel.id = 'yt-seo-panel';
+      panel.id = 'skarfalu-panel';
       panel.classList.add('hidden');
       panel.innerHTML = `
         <div class="panel-header">
@@ -147,17 +150,17 @@ window.SEOScraper = window.SEOScraper || {};
             <span class="panel-title">SkarFalu</span>
           </span>
           <div class="panel-actions">
-            <button id="yt-seo-export-btn" class="export-btn">Export TXT</button>
-            <button id="yt-seo-toggle-btn" class="start-btn">Start Scraping</button>
-            <button id="yt-seo-minimize-btn" class="minimize-btn" title="Minimize">─</button>
+            <button id="skarfalu-export-btn" class="export-btn">Export TXT</button>
+            <button id="skarfalu-toggle-btn" class="start-btn">Start Scraping</button>
+            <button id="skarfalu-minimize-btn" class="minimize-btn" title="Minimize">─</button>
           </div>
         </div>
         <div class="panel-toolbar">
-          <div class="panel-stats">Total Scraped: <span id="yt-seo-count">0</span></div>
-          <input type="text" id="yt-seo-filter" class="filter-input" placeholder="Filter by title...">
+          <div class="panel-stats">Total Scraped: <span id="skarfalu-count">0</span></div>
+          <input type="text" id="skarfalu-filter" class="filter-input" placeholder="Filter by title...">
         </div>
         <div class="panel-table-wrapper">
-          <table id="yt-seo-table">
+          <table id="skarfalu-table">
             <thead>
               <tr>
                 <th data-sort="number">#<span class="sort-indicator"></span></th>
@@ -167,26 +170,37 @@ window.SEOScraper = window.SEOScraper || {};
                 <th>Link</th>
               </tr>
             </thead>
-            <tbody id="yt-seo-tbody"></tbody>
+            <tbody id="skarfalu-tbody"></tbody>
           </table>
         </div>
       `;
       document.body.appendChild(panel);
 
+      // Current site's icon right after the "SkarFalu" title. Built with DOM
+      // APIs rather than innerHTML so the label/URL never need escaping.
+      if (this.platformIconUrl) {
+        const icon = document.createElement('img');
+        icon.className = 'panel-platform-icon';
+        icon.src = this.platformIconUrl;
+        icon.alt = this.platformLabel;
+        icon.title = this.platformLabel;
+        panel.querySelector('.panel-title').after(icon);
+      }
+
       const toast = document.createElement('div');
-      toast.id = 'yt-seo-toast';
+      toast.id = 'skarfalu-toast';
       toast.classList.add('toast-hidden');
       document.body.appendChild(toast);
       this.toastEl = toast;
 
-      this.tbody = document.getElementById('yt-seo-tbody');
-      this.countEl = document.getElementById('yt-seo-count');
-      this.toggleBtn = document.getElementById('yt-seo-toggle-btn');
+      this.tbody = document.getElementById('skarfalu-tbody');
+      this.countEl = document.getElementById('skarfalu-count');
+      this.toggleBtn = document.getElementById('skarfalu-toggle-btn');
       this.launcherEl = launcher;
-      this.filterInput = document.getElementById('yt-seo-filter');
+      this.filterInput = document.getElementById('skarfalu-filter');
 
       this.toggleBtn.addEventListener('click', () => this.viewModel.toggleScraping());
-      document.getElementById('yt-seo-export-btn').addEventListener('click', () => this.viewModel.exportData());
+      document.getElementById('skarfalu-export-btn').addEventListener('click', () => this.viewModel.exportData());
 
       const openPanel = () => {
         panel.classList.remove('hidden');
@@ -197,7 +211,7 @@ window.SEOScraper = window.SEOScraper || {};
         launcher.classList.remove('hidden');
       };
 
-      document.getElementById('yt-seo-minimize-btn').addEventListener('click', minimizePanel);
+      document.getElementById('skarfalu-minimize-btn').addEventListener('click', minimizePanel);
 
       this.filterInput.addEventListener('input', (e) => {
         this.filterText = e.target.value;

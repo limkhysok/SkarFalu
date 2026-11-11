@@ -1,6 +1,11 @@
-// Entry point injected into the MAIN world by content-entry.js. Detects
-// which registered platform Model matches the current page and starts it.
+// Entry point injected into the MAIN world by content-entry.js. Starts the
+// Model that content-entry.js selected (passed via a data attribute on <html>).
 (() => {
-  const platform = window.SEOScraper.PlatformRegistry.detect(window.location);
-  if (platform) platform.start();
+  const id = document.documentElement.dataset.skarfaluPlatform;
+  const platform = window.SEOScraper.PlatformRegistry.get(id);
+  if (platform) {
+    platform.start();
+  } else {
+    console.warn(`[SkarFalu] No model registered for platform "${id}"`);
+  }
 })();
